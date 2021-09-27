@@ -20,7 +20,7 @@ def relative_strength(time_period,count,df):
     ema_up = up_trend.ewm(com = time_period-1,adjust = False).mean()
     ema_down = down_trend.ewm(com = time_period-1,adjust = False).mean()
 
-    return current_rsi(ema_up,ema_down,count)
+    return current_rsi(ema_up,ema_down,len(df)-1)
 
 def current_rsi(ema_up,ema_down,count):
 
@@ -28,7 +28,7 @@ def current_rsi(ema_up,ema_down,count):
 
     rsi = 100.0 - (100.0/(1.0 + rs))
 
-    return rsi['close'][count-1]
+    return rsi['close'][count]
 
 
 if __name__ == "__main__":
