@@ -17,15 +17,22 @@ def main():
 
         time.sleep(1)
         df = read.coin_data(coin, interval, count, to)
+        last_index = len(df)-1
+        
+        try:
+            rsi = get_rsi.relative_strength(14, count, df)
+            bolinger_df = bolinger.calculate_band(20, df)
 
-        rsi = get_rsi.relative_strength(14, count, df)
-        bolinger_df = bolinger.calculate_band(20, df)
+            date_time = str(df.index[last_index])
 
-        last_index = str(df.index[count-1])
+            change = base.get_diff(df,coin,interval,count,to,date_time)
+            price_change = change[0]
+            volume_change = change[1]
 
-        change = base.get_diff(df,coin,interval,count,to,last_index)
-        price_change = change[0]
-        volume_change = change[1]
+        except Exception as e:
+
+            print(e)
+            continue
 
         print(coin, "->" , base.price(coin), "KRW / " \
             "Price Change:", price_change,"% ", "Volume_Change:", volume_change,"%")
@@ -39,9 +46,6 @@ def main():
         elif bolinger.signal(count,bolinger_df) == "buy" and rsi < 30:
 
             print("BUY SIGNAL!", coin)
-
-
-
 
 if __name__ == '__main__':
 
