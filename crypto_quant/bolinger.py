@@ -32,7 +32,7 @@ def calculate_band(time_period,df):
 
     return bolinger_df
 
-def signal(count,bolinger_df):
+def signal(bolinger_df):
     
     """
         count: number of data in df 
@@ -40,9 +40,9 @@ def signal(count,bolinger_df):
         df: dataframe returned from calculate_band()
     """
 
-    current_price = bolinger_df['close'][count-1]
-    upper_band = bolinger_df['upper'][count-1]
-    bottom_band = bolinger_df['bottom'][count-1]
+    current_price = bolinger_df['close'][len(bolinger_df)-1]
+    upper_band = bolinger_df['upper'][len(bolinger_df)-1]
+    bottom_band = bolinger_df['bottom'][len(bolinger_df)-1]
 
     if current_price > upper_band: 
 
