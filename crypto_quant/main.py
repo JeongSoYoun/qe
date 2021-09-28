@@ -38,12 +38,13 @@ def main():
             "Price Change:", price_change,"% ", "Volume_Change:", volume_change,"%")
         
         print("RSI: ", rsi)
+        base.obv(df,13)
 
-        if bolinger.signal(count,bolinger_df) == "sell" and rsi > 70:
+        if bolinger.signal(bolinger_df) == "sell" and rsi > 70:
 
             print("SELL SIGNAL!", coin)
 
-        elif bolinger.signal(count,bolinger_df) == "buy" and rsi < 30:
+        elif bolinger.signal(bolinger_df) == "buy" and rsi < 30:
 
             print("BUY SIGNAL!", coin)
 
