@@ -25,7 +25,7 @@ def main():
 
             date_time = str(df.index[last_index])
 
-            change = base.get_diff(df,coin,interval,count,to,date_time)
+            change = base.get_diff(df, date_time)
             price_change = change[0]
             volume_change = change[1]
 
