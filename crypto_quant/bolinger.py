@@ -10,7 +10,7 @@ import read_data as data
     Catch the buy/sell signal by certain condition.
 """
 
-def calculate_band(time_period,df):
+def calculate_band(time_period, df):
 
     """
         sigma: Standard Diviation
