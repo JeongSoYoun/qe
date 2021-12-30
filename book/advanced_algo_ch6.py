@@ -23,18 +23,27 @@ def obtain_prices_df(ticker,start_date,end_date):
 
 def stochastic_volatility_model(df,samples):
 
+    """
+        sigma: scale of the volatility
+        nu: degree of freedom of the Student's t-distribution
+        s: latent volatility at time point i
+    """
+
     model = pm.Model()
     log_returns = np.array(df["log_returns"])
 
     with model: 
 
+        #sigma & nu must be positive numbers, so we use exponential distribution.
+        #sigma value would be larger than nu at initial state because of the uncertainty.
+
         sigma = pm.Exponential('sigma', 50.0, testval = 0.1)
         nu = pm.Exponential('nu', 0.1)
         s = pm.GaussianRandomWalk('s', sigma**-2, shape = len(log_returns))
-        logrets = pm.StudentT(
+        log_returns_distribution = pm.StudentT(
 
-            'logrets',
-            nu,
+            'log_returns_distribution',
+            nu, 
             lam = pm.math.exp(-2.0*s),
             observed = log_returns
         )
@@ -44,8 +53,12 @@ def stochastic_volatility_model(df,samples):
 
         trace = pm.sample(samples)
 
-    pm.traceplot(trace, model.vars[:-1])
+    print("Plotting the absolute returns overlaid with volaitility")
+    plt.plot(np.abs(np.exp(log_returns))-1.0, linewidth=0.5)
+    plt.plot(np.exp(trace[s][::10].T), 'r', alpha=0.03)
+    plt.ylabel("Absolute Returns/Volatility")
     plt.show()
+
 
 def plot(df,ticker):
 
