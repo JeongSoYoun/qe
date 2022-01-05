@@ -2,7 +2,7 @@
 # QuantStart
 # Advanced Algorithmic Trading 
 # Michael L. Halls-Moore, PhD
-# Chapter 6
+# Part2 - Chapter 6
 
 import datetime
 import pprint

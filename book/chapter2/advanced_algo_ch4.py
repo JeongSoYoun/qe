@@ -2,7 +2,7 @@
 # QuantStart
 # Advanced Algorithmic Trading 
 # Michael L. Halls-Moore, PhD
-# Part 2 - Chapter 4
+# Part2 - Chapter 4
 
 from fastprogress.fastprogress import ProgressBar
 import matplotlib.pyplot as plt
