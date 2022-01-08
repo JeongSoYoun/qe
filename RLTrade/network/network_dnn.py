@@ -8,7 +8,6 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense
 import tensorflow as tf
 import numpy as np
-import os
 
 graph = tf.compat.v1.get_default_graph()
 session = tf.compat.v1.Session()
