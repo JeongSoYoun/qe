@@ -46,6 +46,10 @@ class Neural_Network:
 
     def predict(self, input):
 
+        """
+            Generates output predictions for the input samples.
+        """
+
         with self.lock:
             with graph.as_default():
                 if session is not None:
@@ -53,15 +57,19 @@ class Neural_Network:
 
                 return self.model.predict(input).flatten()
 
-    def train(self, input, label):
+    def get_loss(self, input, label):
 
+        """
+            Return loss.
+        """
+        
         loss = 0.0
         with self.lock:
             with graph.as_default():
                 if session is not None:
                     set_session(session = session)
 
-                loss = self.model.train_on_batch(x = input, y = label)
+                loss = self.model.train_on_batch(x=input, y=label)
 
         return loss
 
@@ -156,14 +164,14 @@ class DNN(Neural_Network):
 
         return Model(input,output)
 
-    def train(self, input, label):
+    def get_loss(self, input, label):
 
         x = np.array(input).reshape((-1, self.input_dim))
-        return super().train(input=x,label=label)
+        return super().get_loss(input=x,label=label)
 
-    def predict(self, sample):
+    def predict(self, input):
 
-        x = np.array(sample).reshape((1,self.input_dim))
+        x = np.array(input).reshape((1,self.input_dim))
         return super().predict(input=x)
 
 class LSTM(Neural_Network):
@@ -240,21 +248,21 @@ class LSTM(Neural_Network):
 
         return Model(input,output)
 
-    def train(self, input, label):
+    def get_loss(self, input, label):
 
         x = np.array(input).reshape((-1, self.num_steps, self.input_dim))
-        return super().train(input=x,label=label)
+        return super().get_loss(input=x,label=label)
 
-    def predict(self, sample):
+    def predict(self, input):
 
-        x = np.array(sample).reshape((1, self.num_steps, self.input_dim))
+        x = np.array(input).reshape((1, self.num_steps, self.input_dim))
         return super().predict(input=x)
 
 class CNN(Neural_Network):
 
     def __init__(self, num_steps=1, *args, **kwargs):
 
-        super.__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         with graph.as_default():
             if session is not None:
                 set_session(session=session)
@@ -289,45 +297,55 @@ class CNN(Neural_Network):
     def get_network(input):
 
         output = Conv2D(
-            256,
-            kernel_size=(1,5),
-            padding='same',
-            activation='sigmoid',
-            kernel_initializer='random_normal'
-        )(input)
+                        256,
+                        kernel_size=(1,5),
+                        padding='same',
+                        activation='sigmoid',
+                        kernel_initializer='random_normal'
+                 )(input)
         output = BatchNormalization()(output)
         output = MaxPooling2D(pool_size=(1,2))(output)
         output = Dropout(0.1)(output)
         output = Conv2D(
-            128,
-            kernel_size=(1,5),
-            padding='same',
-            activation='sigmoid',
-            kernel_initializer='random_normal'
-        )(input)
+                        128,
+                        kernel_size=(1,5),
+                        padding='same',
+                        activation='sigmoid',
+                        kernel_initializer='random_normal'
+                 )(input)
         output = BatchNormalization()(output)
         output = MaxPooling2D(pool_size=(1,2))(output)
         output = Dropout(0.1)(output)
         output = Conv2D(
-            64,
-            kernel_size=(1,5),
-            padding='same',
-            activation='sigmoid',
-            kernel_initializer='random_normal'
-        )(input)
+                        64,
+                        kernel_size=(1,5),
+                        padding='same',
+                        activation='sigmoid',
+                        kernel_initializer='random_normal'
+                 )(input)
         output = BatchNormalization()(output)
         output = MaxPooling2D(pool_size=(1,2))(output)
         output = Dropout(0.1)(output)
         output = Conv2D(
-            32,
-            kernel_size=(1,5),
-            padding='same',
-            activation='sigmoid',
-            kernel_initializer='random_normal'
-        )(input)
+                        32,
+                        kernel_size=(1,5),
+                        padding='same',
+                        activation='sigmoid',
+                        kernel_initializer='random_normal'
+                 )(input)
         output = BatchNormalization()(output)
         output = MaxPooling2D(pool_size=(1,2))(output)
         output = Dropout(0.1)(output)
         output = Flatten()(output)
 
         return Model(input,output)
+
+    def get_loss(self, input, label):
+
+        x = np.array(input).reshape((-1, self.num_steps, self.input_dim, 1))
+        return super().get_loss(input=x,label=label)
+
+    def predict(self, input):
+
+        x = np.array(input).reshape((-1, self.num_steps, self.input_dim, 1))
+        return super().predict(input=x)
