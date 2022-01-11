@@ -240,7 +240,6 @@ class LSTM(Neural_Network):
         output = LSTM(
                         32,
                         dropout=0.1,
-                        return_sequences=True,
                         stateful=False,
                         kernel_initializer='random_normal'
                  )(output)
