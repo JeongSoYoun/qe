@@ -47,7 +47,7 @@ class Neural_Network:
     def predict(self, input):
 
         """
-            Generates output predictions for the input samples.
+            Generates output predictions(Buy, Sell) for the input samples.
         """
 
         with self.lock:
@@ -174,7 +174,7 @@ class DNN(Neural_Network):
         x = np.array(input).reshape((1,self.input_dim))
         return super().predict(input=x)
 
-class LSTM(Neural_Network):
+class LSTM_Network(Neural_Network):
 
     def __init__(self, num_steps=1, *args, **kwargs):
 
