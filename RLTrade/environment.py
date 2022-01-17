@@ -5,7 +5,7 @@
 class Environment:
 
     """
-    chart_data
+        Playground for agent.
     """
 
     def __init__(self, chart_data=None):

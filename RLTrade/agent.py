@@ -1,15 +1,24 @@
+from lib2to3.pgen2.pgen import DFAState
 import numpy as np
 import utils
-
 
 class Agent:
 
     """
-    STATE_DIM: State of Agent -> 주식 보유 비율 & 포트폴리오 가치
-    TRADING_CHARGE: 수수료
-    TRADING_TAX: 거래세
+        Args
+            - environment: Chart data
+            - min_trading_unit: 최소 트레이딩 단위
+            - max_trading_unit: 최대 트레이딩 단위
+            - delayed_reward_threshold: 지연 임계 보상
 
-    portfolio_value = (balance) + (num_stocks)*(current_price)
+        Constant
+            - STATE_DIM: State of Agent -> 주식 보유 비율 & 포트폴리오 가치
+            - TRADING_CHARGE: 수수료
+            - TRADING_TAX: 거래세
+            - ACIONS: Behavior of Agent(Buy or Sell)
+                
+        Variables
+            - portfolio_value = (balance) + (num_stocks * current_price)
     """
 
     STATE_DIM = 2
@@ -22,6 +31,7 @@ class Agent:
     NUM_ACTIONS = len(ACTIONS)
 
     def __init__(
+
         self,
         environment,
         min_trading_unit=1,
@@ -63,35 +73,43 @@ class Agent:
         self.hold_ratio = 0
         self.portfolio_value_ratio = 0
 
-    def reset_exploration(self):
+    def set_random_eps_base(self):
 
-        self.exploation_base = 0.5 + np.random.rand() / 2
+        self.exploation_base = 0.5 + (np.random.rand()/2)
 
     def set_balance(self, balance):
 
         """
-        Initialize the balance to get profit-loss
+            Initialize the balance to get profit-loss
         """
 
         self.initial_balance = balance
 
-    def get_states(self):
+    def get_investement_states(self):
 
+        """ 
+            Return
+                - hold_ratio: 주식 보유 비율 (현재 보유 주식 수 / 현재 보유할 수 있는 최대 주식 수)
+                - portfolio_value_ratio: 포트폴리오 가치 비율 (현재 포트폴리오 가치 / 기준 포트폴리오 가치)
         """
-        hold_ratio: number of stocks holding / maximum number of stocks that you can hold
-        portfolio_value_ratio: current portfolio value over base portfolio value
-        """
-        self.hold_ratio = self.num_stocks / int(
-            self.portfolio_value / self.environment.get_price()
-        )
 
+        max_holding_amount = int(self.portfolio_value / self.environment.get_price())
+
+        self.hold_ratio = self.num_stocks / max_holding_amount
         self.portfolio_value_ratio = self.portfolio_value / self.portfolio_value_base
+
+        return (self.hold_ratio, self.portfolio_value_ratio)
 
     def decide_action(self, value, policy, eps):
 
         """
-        eps: range(0,1)
+            eps: Ratio of exploration -> range(0,1)
+
+            Method Logistics
+                - If exploration is True, action is determined randomly
+                - Otherwise, action is determined by Neural Network.
         """
+
         confidence = 0
         prediction = policy
 
@@ -101,13 +119,12 @@ class Agent:
 
         if prediction is None:
 
-            # If there is no action by Neural Network, explore
+            # If there is no action by Value/Policy Neural Network, explore !
+            print("There is no prediction by Neural Network... Explore! ")
             eps = 1
-
         else:
 
-            # if policy predict by NN and gives us same probabilty, that is
-            # buy: 50 %, sell: 50 -> explore
+            # If policy predict by NN and gives us same probabilty -> ex. (buy: 50 %, sell: 50)
             best_prediction = np.max(policy)
             if (policy == best_prediction).all():
 
@@ -119,21 +136,20 @@ class Agent:
             if np.random.rand() < self.exploration_base:
 
                 action = self.ACTION_BUY
-
             else:
 
                 action = np.random.randint(self.NUM_ACTIONS - 1) + 1
-
         else:
 
             exploration = False
-            action = np.argmax(prediction)
+            action = np.argmax(prediction) # 0 or 1
             confidence = 0.5
 
             if policy is not None:
-                confidence = prediction[action]
 
+                confidence = prediction[action]
             elif value is not None:
+
                 confidence = utils.sigmoid(prediction[action])
 
             return action, confidence, exploration
@@ -141,23 +157,18 @@ class Agent:
     def validate_action(self, action):
 
         """
-        Check whether action is validated.
-        For buying, we can't buy if there is not enough balance.
-        For selling, we can't sell if there is no holding stocks
+            Check whether action is validated.
+                - For buying, we can't buy if there is not enough balance.
+                - For selling, we can't sell if there is no holding stocks
         """
 
         if action == Agent.ACTION_BUY:
 
-            trading_cost = (
-                self.environment.get_price()
-                * (1 + self.TRADING_CHARGE)
-                * self.min_trading_unit
-            )
+            min_trading_cost = (1+self.TRADING_CHARGE) * self.min_trading_unit
 
-            if self.balance < trading_cost:
+            if self.balance < (self.environment.get_price() * min_trading_cost):
 
                 return False
-
         elif action == Agent.ACTION_SELL:
 
             if self.num_stocks <= 0:
@@ -169,8 +180,8 @@ class Agent:
     def decide_trading_unit(self, confidence):
 
         """
-        confidence: range(0,1). If it is closer to 1, we added more trading unit.
-        Otherwise, no additional_trading.
+            confidence: range(0,1). If it is closer to 1, we added more trading unit.
+            Otherwise, no additional_trading.
         """
 
         trading_unit = self.max_trading_unit - self.min_trading_unit
@@ -178,15 +189,16 @@ class Agent:
 
             return self.min_trading_unit
 
-        additional_trading = max(min(int(confidence * trading_unit), trading_unit), 0)
-
-        return self.min_trading_unit + additional_trading
+        additional_trading_unit = max(min(int(confidence * trading_unit), trading_unit), 0)
+        final_trading_unit = self.min_trading_unit + additional_trading_unit
+        
+        return final_trading_unit
 
     def act(self, action, confidence):
 
         """
-        Act what agent has decided.
-        action: [0: BUY, 1: SELL] decided by NN
+            Act what agent has decided.
+            action: [0: BUY, 1: SELL] decided by NN
         """
 
         if not self.validate_action(action):
@@ -237,35 +249,34 @@ class Agent:
         elif action == Agent.ACTION_HOLD:
 
             """
-            While holding, portfolio value would be changed, so we need to update our portfolio value.
-            Here, we return whether our action was good/bad.
+                While holding, portfolio value would be changed, so we need to update our portfolio value.
+                Here, we return whether our action was good/bad.
 
-            portfolio_value_base: Base of the Portfolio value whenever we reach our delayed_reward_threshold.
-            profit_loss_base: Base of the profit-loss when portfolio_value has updated.
+                portfolio_value_base: Base of the Portfolio value whenever we reach our delayed_reward_threshold.
+                profit_loss_base: Base of the profit-loss when portfolio_value has updated.
             """
-
+            
             self.num_hold += 1
-            self.portfolio_value = self.balance + (current_price * self.num_stocks)
-            self.profitloss = (
-                self.portfolio_value - self.initial_balance
-            ) / self.initial_balance
 
-            self.immediate_reward = self.profitloss
+        self.portfolio_value = self.balance + (current_price * self.num_stocks)
+        pnl = (self.portfolio_value - self.initial_balance)
+        self.profitloss = pnl / self.initial_balance
+
+        self.immediate_reward = self.profitloss
+        delayed_reward = 0
+
+        pv_diff = (self.portfolio_value - self.portfolio_value_base)
+        self.profitloss_base = pv_diff / self.portfolio_value_base
+
+        if (
+            self.profitloss_base > self.delayed_reward_threshold
+            or self.profitloss_base < -self.delayed_reward_threshold
+        ):
+
+            self.portfolio_value_base = self.portfolio_value
+            delayed_reward = self.immediate_reward
+        else:
+
             delayed_reward = 0
 
-            self.profitloss_base = (
-                self.portfolio_value - self.portfolio_value_base
-            ) / self.portfolio_value_base
-
-            if (
-                self.profitloss_base > self.delayed_reward_threshold
-                or self.profitloss_base < -self.delayed_reward_threshold
-            ):
-
-                self.portfolio_value_base = self.portfolio_value
-                delayed_reward = self.immediate_reward
-            else:
-
-                delayed_reward = 0
-
-            return delayed_reward, self.immediate_reward
+        return self.immediate_reward,delayed_reward, 
