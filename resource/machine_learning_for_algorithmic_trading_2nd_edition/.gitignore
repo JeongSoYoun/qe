@@ -1,6 +1,6 @@
 
-assets.h5,
-.env,
-us_equities_meta_data.csv,
-wiki_prices.csv,
+assets.h5
+.env
+us_equities_meta_data.csv
+wiki_prices.csv
 wiki_stocks.csv
