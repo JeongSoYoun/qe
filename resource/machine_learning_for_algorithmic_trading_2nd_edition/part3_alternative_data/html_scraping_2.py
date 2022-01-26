@@ -26,14 +26,14 @@ def parse_html(html):
     date_pattern = re.compile(r'(\d{2})-(\d{2})-(\d{2})')
     quarter_pattern = re.compile(r'(\bQ\d\b)')
     parser = bs(html, 'lxml')
-
+    
     headline = parser.find('h1', {'data-test-id': 'post-title'}).text
-
+    # Kinder Morgan, Inc (KMI) CEO Steven Kean on Q4 2021 Results - Earnings Call Transcript
     item['company'] = headline[:headline.find('(')].strip()
     item['symbol'] = headline[headline.find('(') + 1:headline.find(')')]
 
     match = quarter_pattern.search(headline)
-
+            
     if match: 
         item['quarter'] = match.group(0)
 
@@ -49,7 +49,7 @@ def parse_html(html):
         elif text.lower().startswith('question-and'):
             qa = 1
             continue
-        
+        # SPEAKER_TYPES = ['Executives','Analysts']
         elif any(type in text for type in SPEAKER_TYPES):
             for participant in header.find_next_siblings('p'):
                 if participant.find('strong'):
@@ -65,7 +65,8 @@ def parse_html(html):
                 else:
                     p.append(participant.text)
             content.append([header.text, qa, '\n'.join(p)])
-
+    
+    print(content)
     return item, participant, content
 
 
@@ -89,9 +90,7 @@ if __name__ == '__main__':
         
         else:
             for link in links:
-
-                print("link")
-                print(link.attrs.get('href'))
+                
                 transcript_url = link.attrs.get('href')
                 article_url = furl(urljoin(URL, transcript_url)).add({'part': 'single'})
                 driver.get(url=article_url.url)
