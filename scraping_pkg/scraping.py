@@ -1,6 +1,7 @@
 
 from bs4 import BeautifulSoup as bs
 from bs4 import NavigableString, Tag
+from h11 import Data
 from selenium import webdriver
 from dotenv import load_dotenv
 from data_manager import Data_Manager
@@ -19,7 +20,7 @@ class Scraper:
         self.trade_info = trade_info
         self.id = None 
 
-    def collect(self, market=None):
+    def collect(self, limit=None, market=None):
         
         """
             Args   
@@ -36,7 +37,7 @@ class Scraper:
         self.market = market
 
         driver = webdriver.Chrome(DRIVER_DIR)
-        tickers = Data_Manager.get_ticker(market=market)[:100] 
+        tickers = Data_Manager.get_ticker(market=market)[:limit] # for test
         for ticker in tickers:
             url = 'http://companyinfo.stock.naver.com/company/c1010001.aspx?cmp_cd={ticker}'.format(ticker=ticker)
             driver.get(url=url)
@@ -47,8 +48,7 @@ class Scraper:
             )
             self.df = pd.concat([self.df, new_data], ignore_index=True)
         
-        print(self.df)
-        # return self.df
+        return self.df
 
     def parse_html(self, source, ticker):
 

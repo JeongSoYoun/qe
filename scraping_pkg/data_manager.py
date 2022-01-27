@@ -20,14 +20,14 @@ class Data_Manager:
         return krx.get_market_ticker_list(date=date, market=market)
 
     @staticmethod
-    def market_cap_by_date(fromdate=None, todate=None, ticker=None, freq='d'):
+    def get_market_cap_by_date(fromdate=None, todate=None, ticker=None, freq='d'):
         
         return krx.get_market_cap_by_date(
                     fromdate, 
                     todate, 
                     ticker=ticker, 
                     freq=freq
-                )
+               )
 
 if __name__ == "__main__":
     
