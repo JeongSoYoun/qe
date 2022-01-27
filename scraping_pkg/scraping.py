@@ -5,11 +5,12 @@ from h11 import Data
 from selenium import webdriver
 from dotenv import load_dotenv
 from data_manager import Data_Manager
+from pathlib import Path
 import pandas as pd 
 import os
 
 load_dotenv()
-DRIVER_DIR = os.getenv('DRIVER_DIR')
+DRIVER_DIR = Path.joinpath(Path.cwd(),'chromedriver')
 
 class Scraper:
 
