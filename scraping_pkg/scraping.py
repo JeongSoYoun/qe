@@ -86,7 +86,10 @@ class Scraper:
                     if balance_type == '순이익률':
                         profit_3_years = data.find_all('td', {'class': 'num'})[1:4]
                         for profit in profit_3_years:
-                            profit_ratio.append(profit.text)
+                            if profit.text == '':
+                                continue
+                            else:
+                                profit_ratio.append(profit.text)
 
                         items['3년 순이익률'] = profit_ratio
         

@@ -1,10 +1,14 @@
 
-from scraping import Scraper
-import re
+from unittest.util import sorted_list_difference
 from data_manager import Data_Manager
+from scraping import Scraper
+from utils import Utils
+import re
 
 FILTERD_INFO = ['시가총액', '유동비율']
-def filter_data(data) -> list:
+TRANSACTION_AMOUNT = 3e10
+
+def filter(data) -> list:
 
     """
         시총 
@@ -15,13 +19,14 @@ def filter_data(data) -> list:
 
         거래 대금
         - 300억 미만 제외.
-        
+
         상한가 여부
         
         긴꼬리 여부
     """
 
-    filtered_data = []
+    print(data)
+    filtered_ticker = []
     for index in range(len(data)):
 
         # market_cap
@@ -36,41 +41,26 @@ def filter_data(data) -> list:
             continue
             
         # 3년 순이익률
-        profit_3years = data.loc[index]['3년 순이익률']
-        for _index in range(len(profit_3years)):
-            if profit_3years[_index] == '':
-                profit_3years[_index] = 0
-        if (
-            float(profit_3years[0]) < 0 and  
-            float(profit_3years[1]) < 0 and 
-            float(profit_3years[2]) < 0
-        ):
+        profit_ratio_3years = data.loc[index]['3년 순이익률']
+        if float(sorted(profit_ratio_3years)[-1]) < 0.0:
             continue
         
+        # 거래대금
         ticker = data.loc[index]['티커']
-        if filter_market_cap_by_date(ticker=ticker):
-        
-            filtered_data.append(ticker)
-    
-    return filtered_data    
+        tx_amount = Data_Manager.get_market_cap_by_date(ticker=ticker)
+        if sorted(tx_amount)[-1] < TRANSACTION_AMOUNT:
+            continue
 
-def filter_market_cap_by_date(ticker) -> bool:
+        print(f"filtering {ticker}:{Data_Manager.get_ticker_name(ticker)}")
+        filtered_ticker.append(ticker)  
 
-    df = Data_Manager.get_market_cap_by_date("20210124", "20220125", ticker)
-    date = 0
-    print(f"filtering {ticker}")
-    while date < len(df): 
-
-        if df['거래대금'][date] > 3e10:
-            return True
-        
-        date += 1
+    return filtered_ticker    
 
 if __name__ == "__main__":
 
     TRADE_INFO = ['거래량/거래대금', '시가총액', '발행주식수/유동비율']
-
     scraper = Scraper(trade_info=TRADE_INFO)
     df = scraper.collect(limit=10, market="KOSPI")
-    filtered_data = filter_data(data=df)
+    filtered_data = filter(data=df)
+    
 

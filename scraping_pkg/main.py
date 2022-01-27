@@ -1,20 +1,20 @@
 
 from scraping import Scraper
-from filter import filter_data
+from filter import filter
 
-K_MARKETS = ["KOSPI", "KOSDAQ"]
+K_MARKETS = ['KOSPI','KOSDAQ']
 TRADE_INFO = ['거래량/거래대금', '시가총액', '발행주식수/유동비율']
 
 def main():
 
     scraper = Scraper(trade_info=TRADE_INFO)
-    filtered_data = {}
+    filtered_ticker = {}
     for market in K_MARKETS:
 
-        df = scraper.collect(limit=50, market=market)
-        filtered_data[market] = filter_data(data=df)
+        df = scraper.collect(limit=100, market=market)
+        filtered_ticker[market] = filter(data=df)
     
-    print(filtered_data)
+    print(filtered_ticker)
 
 if __name__ == "__main__":
 
