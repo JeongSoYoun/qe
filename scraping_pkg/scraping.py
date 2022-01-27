@@ -47,7 +47,8 @@ class Scraper:
                 ticker=ticker
             )
             self.df = pd.concat([self.df, new_data], ignore_index=True)
-        
+            
+        driver.close()
         return self.df
 
     def parse_html(self, source, ticker):
