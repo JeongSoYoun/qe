@@ -25,7 +25,6 @@ def filter(data) -> list:
         긴꼬리 여부
     """
 
-    print(data)
     filtered_ticker = []
     for index in range(len(data)):
 
@@ -51,10 +50,11 @@ def filter(data) -> list:
         if sorted(tx_amount)[-1] < TRANSACTION_AMOUNT:
             continue
 
-        print(f"filtering {ticker}:{Data_Manager.get_ticker_name(ticker)}")
+        print(f"Ticker {ticker}:{Data_Manager.get_ticker_name(ticker)}")
         filtered_ticker.append(ticker)  
 
     return filtered_ticker    
+
 
 if __name__ == "__main__":
 
