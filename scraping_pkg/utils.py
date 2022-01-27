@@ -1,6 +1,7 @@
 from datetime import datetime as date
 from dateutil.relativedelta import relativedelta as before
 
+
 class Utils:
 
     @staticmethod
@@ -18,3 +19,4 @@ class Utils:
 if __name__ == "__main__":
 
     print(Utils.calculate_date())
+    
