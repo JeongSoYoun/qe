@@ -14,7 +14,7 @@ def main():
     filtered_ticker = {}
     for market in K_MARKETS:
 
-        df = scraper.collect(limit=10, market=market)
+        df = scraper.collect(limit=100, market=market)
         filtered_ticker[market] = filter(data=df)
     
     bot.send_message(data=filtered_ticker)
