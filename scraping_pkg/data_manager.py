@@ -126,5 +126,5 @@ if __name__ == "__main__":
 
         diff.append(((df['고가'][i]- df['종가'][i])/df['고가'][i]*100))
     print(sorted(diff))
-
+    print('hi')
     # 2. 긴꼬리 여부 체크
