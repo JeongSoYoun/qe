@@ -9,7 +9,7 @@ import re
 
 FILTERD_INFO = ['시가총액', '유동비율']
 TRANSACTION_AMOUNT = 3e10
-RETURN_UPPER_LIMIT = 30
+RETURN_UPPER_LIMIT = 29
 TAIL_PRICE_LIMIT = 20
 
 def filter(data) -> list:
@@ -66,7 +66,7 @@ def filter(data) -> list:
         tail_change = Data_Manager.get_tail_change(ticker=ticker)
         if tail_change[-1] < TAIL_PRICE_LIMIT:
             continue
-        
+
         print(f"Ticker {ticker}:{Data_Manager.get_ticker_name(ticker)}")
         filtered_ticker.append(ticker)  
 
