@@ -9,7 +9,8 @@ import re
 
 FILTERD_INFO = ['시가총액', '유동비율']
 TRANSACTION_AMOUNT = 3e10
-PRICE_UPPER_LIMIT = 30
+RETURN_UPPER_LIMIT = 30
+TAIL_PRICE_LIMIT = 20
 
 def filter(data) -> list:
 
@@ -57,17 +58,15 @@ def filter(data) -> list:
             continue
 
         # 상한가 여부
-        (start_price, close_price) = Data_Manager.is_upper_limit(ticker=ticker)
-        max = len(start_price)-1
-        indicator = 0
-        for i in range(max):
-            if i == max:
-                indicator = i
-            if Utils.pct_change(start_price[i], close_price[i+1]) > PRICE_UPPER_LIMIT:
-                break
-        if indicator == len(start_price)-1:
+        return_pct_change = Data_Manager.get_return_pct_change(ticker=ticker)
+        if return_pct_change[-1] < RETURN_UPPER_LIMIT:
             continue
 
+        # 긴꼬리 양봉 여부
+        tail_change = Data_Manager.get_tail_change(ticker=ticker)
+        if tail_change[-1] < TAIL_PRICE_LIMIT:
+            continue
+        
         print(f"Ticker {ticker}:{Data_Manager.get_ticker_name(ticker)}")
         filtered_ticker.append(ticker)  
 
