@@ -101,9 +101,10 @@ class Data_Manager:
         diff = []
         for i in index:
 
-            price_diff = df['고가'][i]- df['종가'][i]
+            price_diff = df['고가'][i] - df['종가'][i]
             peak_price = df['고가'][i]
-            diff.append((price_diff/peak_price*100))
+            if peak_price != 0:
+                diff.append((price_diff/peak_price*100))
     
         return sorted(diff)
 
