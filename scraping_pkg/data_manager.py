@@ -8,6 +8,12 @@ import pandas as pd
 
 class Data_Manager:
 
+
+    @staticmethod
+    def get_total_num_listed(market: str) -> int:
+
+        return len(krx.get_market_ticker_list(market=market))
+
     @staticmethod
     def get_chart_data(ticker: str, freq: str, type:str):
 
@@ -78,7 +84,7 @@ class Data_Manager:
         return df['종가'].pct_change(periods=periods).dropna().mul(100).sort_values().tolist()
 
     @staticmethod
-    def is_tail(ticker: str = None, freq: str = 'd') -> list:
+    def get_tail_change(ticker: str = None, freq: str = 'd') -> list:
         
         df = Data_Manager.get_chart_data(
             ticker=ticker,
@@ -105,7 +111,7 @@ class Data_Manager:
 if __name__ == "__main__":
     
     # print(Data_Manager().get_ticker())
-    df = Data_Manager.is_tail(ticker='005930')
+    df = Data_Manager.get_tail_change(ticker='005930')
     print(df)
 
     # 1. 양봉인 인덱스 확인
